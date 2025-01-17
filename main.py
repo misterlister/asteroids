@@ -34,12 +34,15 @@ def main():
             draw_object.draw(screen)
         for asteroid in asteroids:
             if asteroid.check_for_collision(player):
-                if player.shielded():
+                if player.protected():
                     asteroid.kill()
-                    player.lose_shield()
                 else:
-                    print("GAME OVER!")
-                    return
+                    if player.shielded():
+                        player.break_shield()
+                        asteroid.kill()
+                    else:
+                        print("GAME OVER!")
+                        return
             for laser in lasers:
                 if asteroid.check_for_collision(laser):
                     asteroid.split()

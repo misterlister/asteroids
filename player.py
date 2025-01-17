@@ -9,7 +9,9 @@ from constants import (
     POWERUP_SPEEDSHOT_FACTOR,
     POWERUP_DURATION,
     POWERUP_MULTISHOT_ANGLE,
-    POWERUP_SHIELD_COLOUR
+    POWERUP_SHIELD_COLOUR,
+    SHIELD_DURATION,
+    PROTECTED_COLOUR
 )
 from laser import Laser
 from powerup import Powerup, PowerupType
@@ -26,6 +28,7 @@ class Player(CircleShape):
         self.speed_shot_timer = 0
         self.colour = PLAYER_COLOUR
         self.shield = False
+        self.shield_timer = 0
         
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -96,6 +99,10 @@ class Player(CircleShape):
             self.speed_shot_timer -= dt
             if self.speed_shot_timer <= 0:
                 self.shot_speed = PLAYER_SHOT_BASE_SPEED
+        if self.shield_timer > 0:
+            self.shield_timer -= dt
+            if self.shield_timer <= 0:
+                self.colour = PLAYER_COLOUR
         
     def get_powerup(self, powerup: Powerup):
         match (powerup.type):
@@ -118,12 +125,20 @@ class Player(CircleShape):
         return self.pierce_timer > 0
     
     def shielded(self):
-        return self.shield
+        if self.shield:
+            return True
+        return False
+    
+    def protected(self):
+        if self.shield_timer > 0:
+            return True
+        return False
     
     def get_shield(self):
         self.shield = True
         self.colour = POWERUP_SHIELD_COLOUR
         
-    def lose_shield(self):
+    def break_shield(self):
         self.shield = False
-        self.colour = PLAYER_COLOUR
+        self.colour = PROTECTED_COLOUR
+        self.shield_timer = SHIELD_DURATION
