@@ -3,9 +3,12 @@ from circleshape import CircleShape
 from constants import (
     ASTEROID_COLOUR,
     ASTEROID_MIN_RADIUS,
-    ASTEROID_SPEED_BOOST
+    ASTEROID_MAX_RADIUS,
+    ASTEROID_SPEED_BOOST,
+    POWERUP_CHANCE
     )
 import random
+from powerup import Powerup
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -21,6 +24,12 @@ class Asteroid(CircleShape):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
             return
+        
+        # Calculate powerup drop chance proportionally
+        proportional_chance = POWERUP_CHANCE * (self.radius / ASTEROID_MAX_RADIUS) ** 3
+        if random.randint(1, 100) <= proportional_chance:
+            powerup = Powerup(self.position.x, self.position.y)
+            
         angle = random.uniform(20, 50)
         vec1 = self.velocity.rotate(angle)
         vec2 = self.velocity.rotate(-angle)
@@ -29,3 +38,5 @@ class Asteroid(CircleShape):
         asteroid2 = Asteroid(self.position.x, self.position.y, new_rad)
         asteroid1.velocity = vec1 * ASTEROID_SPEED_BOOST
         asteroid2.velocity = vec2 * ASTEROID_SPEED_BOOST
+        
+    
